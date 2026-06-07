@@ -1,0 +1,15 @@
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  @for (item of items; track item.label; let last = $last) {
+    @if (item.action && !last) {
+      <button type="button" (click)="item.action()">{{ item.label }}</button>
+    } @else if (item.routerLink && !last) {
+      <a [routerLink]="item.routerLink" [queryParams]="item.queryParams">{{ item.label }}</a>
+    } @else {
+      <strong>{{ item.label }}</strong>
+    }
+
+    @if (!last) {
+      <span>/</span>
+    }
+  }
+</nav>

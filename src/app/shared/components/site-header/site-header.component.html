@@ -1,0 +1,55 @@
+<header class="site-header">
+  <div class="site-header__brand-row">
+    <a class="brand" routerLink="/" aria-label="Ir al inicio de NexoShop Angular">
+      <img src="/logo-header-nexoShop.png" alt="NexoShop" width="178" height="44">
+    </a>
+
+    <button class="site-header__menu-toggle" type="button" aria-label="Abrir menú de navegación"
+      [attr.aria-expanded]="isMobileMenuOpen" aria-controls="site-nav" (click)="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <nav class="site-nav" id="site-nav" [class.open]="isMobileMenuOpen" aria-label="Navegacion principal">
+    <form class="header-search" role="search" (ngSubmit)="submitSearch()">
+      <span class="sr-only">Buscar productos</span>
+      <div class="header-search__control">
+        <input type="search" name="headerSearch" autocomplete="off" [(ngModel)]="search"
+          (ngModelChange)="updateDraftSearch($event)" (focus)="updateDraftSearch(search)" (blur)="hideSuggestions()"
+          placeholder="Buscar productos">
+        <button type="submit" aria-label="Buscar">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path
+              d="M10.8 18.1a7.3 7.3 0 1 1 5.2-2.1l4 4-1.4 1.4-4-4a7.3 7.3 0 0 1-3.8 1.1Zm0-2a5.3 5.3 0 1 0 0-10.6 5.3 5.3 0 0 0 0 10.6Z" />
+          </svg>
+        </button>
+      </div>
+
+      @if (showSuggestions) {
+      <div class="search-suggestions" role="listbox" aria-label="Sugerencias de busqueda">
+        @for (suggestion of suggestions; track suggestion.type + suggestion.label) {
+        <button type="button" role="option" (mousedown)="selectSuggestion(suggestion)">
+          <span>
+            <strong>{{ suggestion.label }}</strong>
+            @if (suggestion.hint) {
+            <small>{{ suggestion.hint }}</small>
+            }
+          </span>
+          <em>{{ suggestion.type }}</em>
+        </button>
+        }
+      </div>
+      }
+    </form>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMobileMenu()">Inicio</a>
+    <a routerLink="/productos" routerLinkActive="active" (click)="closeMobileMenu()">Productos</a>
+    <a routerLink="/carrito" routerLinkActive="active" (click)="closeMobileMenu()">
+      Carrito
+      <span class="nav-pill">{{ cartCount$ | async }}</span>
+    </a>
+    <a routerLink="/checkout" routerLinkActive="active" (click)="closeMobileMenu()">Checkout</a>
+  </nav>
+</header>

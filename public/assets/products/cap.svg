@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Gorra Classic">
+  <rect width="640" height="480" fill="#f7efe9"/>
+  <path d="M186 278c18-92 94-146 186-120 72 20 104 76 118 120z" fill="#26466d"/>
+  <path d="M330 278c80 0 142 14 182 44 22 16 12 44-14 44H194c-42 0-48-52-8-88z" fill="#17211f"/>
+  <path d="M292 162c34 34 48 72 46 116" stroke="#91a6c4" stroke-width="12" fill="none"/>
+  <text x="320" y="426" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">Classic</text>
+</svg>

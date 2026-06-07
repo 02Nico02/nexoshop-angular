@@ -1,0 +1,14 @@
+<app-site-header />
+
+<main class="page-shell">
+  <router-outlet />
+</main>
+
+@if (notificationService.notification$ | async; as notification) {
+  <aside class="app-toast" [class]="'app-toast app-toast--' + notification.type" role="status" aria-live="polite">
+    <span>{{ notification.message }}</span>
+    <button type="button" aria-label="Cerrar mensaje" (click)="notificationService.clear()">x</button>
+  </aside>
+}
+
+<app-site-footer />

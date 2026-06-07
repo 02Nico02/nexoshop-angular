@@ -1,0 +1,33 @@
+<section class="hero">
+  <div class="hero__content">
+    <span class="eyebrow">Mini e-commerce Angular</span>
+    <h1>NexoShop Angular</h1>
+    <p>Tienda online demo con catalogo, filtros, detalle de producto, carrito persistente y checkout simulado.</p>
+    <div class="hero__actions">
+      <a class="button" routerLink="/productos">Ver catalogo</a>
+      <a class="button button--ghost" routerLink="/checkout">Ir al checkout</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__header">
+    <div>
+      <span class="eyebrow">Seleccion curada</span>
+      <h2>Productos destacados</h2>
+    </div>
+    <a class="text-link" routerLink="/productos">Explorar todos</a>
+  </div>
+
+  @if (cartItems$ | async; as cartItems) {
+    <div class="product-grid">
+      @for (product of featuredProducts$ | async; track product.id) {
+        <app-product-card
+          [product]="product"
+          [currentQuantity]="cartService.getProductQuantity(product.id, cartItems)"
+          (addToCart)="addToCart(product)"
+        />
+      }
+    </div>
+  }
+</section>

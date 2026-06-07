@@ -1,0 +1,109 @@
+<section class="page-heading">
+  <span class="eyebrow">Checkout simulado</span>
+  <h1>Finalizar compra</h1>
+  <p>Completa tus datos para generar una confirmacion local del pedido.</p>
+</section>
+
+@if (submittedOrder) {
+  <section class="empty-state empty-state--success">
+    <h2>Compra finalizada</h2>
+    <p>Pedido {{ submittedOrder.id }} confirmado por {{ submittedOrder.customer.fullName }}.</p>
+    <p>
+      Subtotal {{ submittedOrder.subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}
+      · Descuentos -{{ submittedOrder.discountTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}
+      · Impuestos incluidos {{ submittedOrder.taxTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}
+    </p>
+    <strong>Total: {{ submittedOrder.total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+    <a class="button" routerLink="/productos">Seguir comprando</a>
+  </section>
+} @else {
+  @if (items$ | async; as items) {
+    @if (items.length > 0) {
+      <section class="checkout-layout">
+        <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="submit()" novalidate>
+          <label>
+            Nombre completo
+            <input type="text" formControlName="fullName" placeholder="Nombre y apellido">
+            @if (isInvalid('fullName')) {
+              <span>Ingresá al menos 3 caracteres.</span>
+            }
+          </label>
+
+          <label>
+            Email
+            <input type="email" formControlName="email" placeholder="nombre@email.com">
+            @if (isInvalid('email')) {
+              <span>Ingresá un email valido.</span>
+            }
+          </label>
+
+          <label>
+            Telefono
+            <input type="tel" formControlName="phone" placeholder="1122334455">
+            @if (isInvalid('phone')) {
+              <span>Ingresá un telefono valido.</span>
+            }
+          </label>
+
+          <label>
+            Direccion
+            <input type="text" formControlName="address" placeholder="Calle 123, Ciudad">
+            @if (isInvalid('address')) {
+              <span>Ingresá una direccion completa.</span>
+            }
+          </label>
+
+          @if (checkoutForm.invalid) {
+            <p class="form-status">Completa todos los datos para habilitar la compra.</p>
+          }
+
+          <button class="button" type="submit" [disabled]="checkoutForm.invalid || items.length === 0">Finalizar compra</button>
+        </form>
+
+        <aside class="summary">
+          <h2>Pedido</h2>
+          @for (item of items; track item.product.id) {
+            <div>
+              <span>
+                {{ item.quantity }} x {{ item.product.name }}
+                @if (cartService.hasDiscount(item.product)) {
+                  <small class="summary-note">-{{ item.product.discountPercentage }}%</small>
+                }
+                @if (cartService.hasTax(item.product)) {
+                  <small class="summary-note">{{ item.product.taxLabel ?? 'Impuesto' }} inc. {{ item.product.taxPercentage }}%</small>
+                }
+              </span>
+              <strong>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+            </div>
+          }
+          <div>
+            <span>Subtotal</span>
+            <strong>{{ cartService.getItemsBaseSubtotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+          </div>
+          @if (cartService.getDiscountTotal(items) > 0) {
+            <div class="summary__adjustment">
+              <span>Descuentos</span>
+              <strong>-{{ cartService.getDiscountTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+            </div>
+          }
+          @if (cartService.getTaxTotal(items) > 0) {
+            <div>
+              <span>Impuestos incluidos</span>
+              <strong>{{ cartService.getTaxTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+            </div>
+          }
+          <div class="summary__total">
+            <span>Total</span>
+            <strong>{{ cartService.getTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+          </div>
+        </aside>
+      </section>
+    } @else {
+      <section class="empty-state">
+        <h2>No hay productos para finalizar</h2>
+        <p>Agrega productos al carrito antes de completar el checkout.</p>
+        <a class="button" routerLink="/productos">Ver catalogo</a>
+      </section>
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Campera Softshell">
+  <rect width="640" height="480" fill="#f3f0ec"/>
+  <path d="M232 112l88 52 88-52 74 70-52 72v130H210V254l-52-72z" fill="#17211f"/>
+  <path d="M320 164v220" stroke="#d89d2b" stroke-width="14"/>
+  <path d="M256 224h44M340 224h44" stroke="#91a6c4" stroke-width="12" stroke-linecap="round"/>
+  <text x="320" y="432" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">Softshell</text>
+</svg>

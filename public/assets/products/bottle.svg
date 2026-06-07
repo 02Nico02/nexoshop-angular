@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Botella Termica">
+  <rect width="640" height="480" fill="#edf7f5"/>
+  <rect x="274" y="72" width="92" height="64" rx="18" fill="#17211f"/>
+  <rect x="244" y="120" width="152" height="262" rx="48" fill="#26466d"/>
+  <rect x="270" y="154" width="100" height="170" rx="34" fill="#91a6c4"/>
+  <path d="M286 226h68" stroke="#fff" stroke-width="16" stroke-linecap="round"/>
+  <text x="320" y="432" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">Termica</text>
+</svg>

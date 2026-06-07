@@ -1,0 +1,149 @@
+<app-breadcrumb [items]="breadcrumbItems" />
+
+<section class="page-heading catalog-heading">
+  <span class="eyebrow">Catalogo</span>
+  <h1>Productos</h1>
+  <p>Explora el catalogo por categoria, subcategoria, atributos y rango de precio.</p>
+</section>
+
+@if (products$ | async; as products) {
+  <section class="catalog-layout">
+    <aside class="filter-sidebar" aria-label="Filtros de productos">
+      <div class="filter-sidebar__header">
+        <div>
+          <span class="eyebrow">Filtros</span>
+          <h2>Refinar busqueda</h2>
+        </div>
+        @if (hasActiveFilters()) {
+          <button class="filter-link" type="button" (click)="clearFilters()">Limpiar</button>
+        }
+      </div>
+
+      @if (hasActiveFilters()) {
+        <div class="filter-chips filter-chips--sidebar" aria-label="Filtros activos">
+          @if (filters.search.trim()) {
+            <button type="button" (click)="clearSearchFilter()">Busqueda: {{ filters.search }} <span>x</span></button>
+          }
+          @if (filters.category !== 'Todas') {
+            <button type="button" (click)="clearCategoryFilter()">Categoria: {{ filters.category }} <span>x</span></button>
+          }
+          @if (filters.subcategory) {
+            <button type="button" (click)="clearSubcategoryFilter()">Subcategoria: {{ filters.subcategory }} <span>x</span></button>
+          }
+          @if (filters.minPrice !== null) {
+            <button type="button" (click)="clearMinPriceFilter()">Desde ${{ filters.minPrice }} <span>x</span></button>
+          }
+          @if (filters.maxPrice !== null) {
+            <button type="button" (click)="clearMaxPriceFilter()">Hasta ${{ filters.maxPrice }} <span>x</span></button>
+          }
+          @for (attribute of selectedAttributeEntries(); track attribute.name + attribute.value) {
+            <button type="button" (click)="clearAttributeFilter(attribute.name, attribute.value)">
+              {{ attribute.name }}: {{ attribute.value }} <span>x</span>
+            </button>
+          }
+        </div>
+      }
+
+      @if (filters.category === 'Todas') {
+        <div class="filter-group">
+          <h3>Categorias</h3>
+          @for (category of categories; track category) {
+            <button class="filter-option" type="button" (click)="selectCategory(category)">
+              {{ categoryLabel(category) }}
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="filter-group">
+          <h3>Subcategorias de {{ filters.category }}</h3>
+          @for (subcategory of subcategories; track subcategory) {
+            <button class="filter-option" type="button" [class.active]="filters.subcategory === subcategory" (click)="selectSubcategory(subcategory)">
+              {{ subcategory }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="filter-group">
+        <h3>Precio</h3>
+        <div class="filter-price">
+          <label>
+            <span>Desde $</span>
+            <input type="number" min="0" [(ngModel)]="filters.minPrice" (ngModelChange)="applyFilters()" placeholder="0">
+          </label>
+          <label>
+            <span>Hasta $</span>
+            <input type="number" min="0" [(ngModel)]="filters.maxPrice" (ngModelChange)="applyFilters()" placeholder="200000">
+          </label>
+        </div>
+      </div>
+
+      @if (attributeOptions.length > 0) {
+        <div class="filter-group">
+          <h3>Atributos</h3>
+          @for (attribute of attributeOptions; track attribute.name) {
+            <div class="attribute-filter">
+              <strong>{{ attribute.name }}</strong>
+              @for (value of attribute.values; track value) {
+                <label class="check-option">
+                  <input
+                    type="checkbox"
+                    [checked]="isAttributeSelected(attribute.name, value)"
+                    (change)="toggleAttributeFilter(attribute.name, value)"
+                  >
+                  <span>{{ value }}</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      }
+    </aside>
+
+    <section class="catalog-results">
+      <div class="catalog-toolbar">
+        <div class="results-bar" aria-live="polite">
+          <strong>{{ products.length }}</strong>
+          <span>{{ products.length === 1 ? 'producto encontrado' : 'productos encontrados' }}</span>
+        </div>
+
+        <div class="catalog-controls">
+          <label class="sort-control">
+            <span>Ordenar por</span>
+            <select [(ngModel)]="filters.sortBy" (ngModelChange)="updateSort($event)">
+              <option value="featured">Destacados</option>
+              <option value="priceAsc">Menor precio</option>
+              <option value="priceDesc">Mayor precio</option>
+              <option value="nameAsc">Nombre A-Z</option>
+            </select>
+          </label>
+
+          <div class="view-toggle" aria-label="Modo de vista">
+            <button type="button" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">Tarjetas</button>
+            <button type="button" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">Lista</button>
+          </div>
+        </div>
+      </div>
+
+      @if (products.length > 0) {
+        @if (cartItems$ | async; as cartItems) {
+          <section class="product-grid" [class.product-grid--list]="viewMode === 'list'">
+            @for (product of products; track product.id) {
+              <app-product-card
+                [product]="product"
+                [currentQuantity]="cartService.getProductQuantity(product.id, cartItems)"
+                (addToCart)="addToCart(product)"
+              />
+            }
+          </section>
+        }
+      } @else {
+        <section class="empty-state">
+          <h2>No encontramos productos</h2>
+          <p>Proba ajustar la busqueda, categoria, atributos o rango de precio.</p>
+          <button class="button" type="button" (click)="clearFilters()">Ver todos los productos</button>
+        </section>
+      }
+    </section>
+  </section>
+}

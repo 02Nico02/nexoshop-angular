@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Set de Cocina Terra">
+  <rect width="640" height="480" fill="#fff4e2"/>
+  <rect x="200" y="230" width="240" height="116" rx="18" fill="#26466d"/>
+  <path d="M214 230c18-64 194-64 212 0" fill="#d89d2b"/>
+  <path d="M232 110v112M292 96v126M352 106v116M412 92v130" stroke="#17211f" stroke-width="18" stroke-linecap="round"/>
+  <text x="320" y="416" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">Cocina Terra</text>
+</svg>

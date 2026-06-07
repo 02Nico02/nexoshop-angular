@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Notebook Nova 14">
+  <rect width="640" height="480" fill="#eef2f7"/>
+  <rect x="132" y="100" width="376" height="236" rx="18" fill="#17211f"/>
+  <rect x="158" y="126" width="324" height="184" rx="10" fill="#91a6c4"/>
+  <rect x="96" y="336" width="448" height="38" rx="16" fill="#64716d"/>
+  <rect x="280" y="344" width="80" height="10" rx="5" fill="#dce4e1"/>
+  <text x="320" y="422" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">Notebook Nova</text>
+</svg>

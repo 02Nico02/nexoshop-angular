@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Cable USB-C Pro">
+  <rect width="640" height="480" fill="#edf3f6"/>
+  <path d="M178 238c0-86 92-126 164-84 56 34 62 116 8 152-42 28-102 12-112-38" fill="none" stroke="#26466d" stroke-width="26" stroke-linecap="round"/>
+  <rect x="114" y="210" width="92" height="56" rx="16" fill="#17211f"/>
+  <rect x="420" y="256" width="104" height="62" rx="18" fill="#17211f"/>
+  <rect x="126" y="226" width="28" height="24" rx="6" fill="#d89d2b"/>
+  <rect x="454" y="274" width="36" height="24" rx="8" fill="#d89d2b"/>
+  <text x="320" y="418" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">USB-C Pro</text>
+</svg>

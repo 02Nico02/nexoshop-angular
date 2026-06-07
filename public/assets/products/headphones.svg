@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Auriculares Pulse">
+  <rect width="640" height="480" fill="#f5efe4"/>
+  <path d="M190 260v-48c0-74 56-132 130-132s130 58 130 132v48" fill="none" stroke="#26466d" stroke-width="30" stroke-linecap="round"/>
+  <rect x="146" y="238" width="96" height="132" rx="34" fill="#17211f"/>
+  <rect x="398" y="238" width="96" height="132" rx="34" fill="#17211f"/>
+  <circle cx="194" cy="304" r="30" fill="#d89d2b"/>
+  <circle cx="446" cy="304" r="30" fill="#d89d2b"/>
+  <text x="320" y="424" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26466d">Pulse</text>
+</svg>

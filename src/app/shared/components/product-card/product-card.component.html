@@ -1,0 +1,39 @@
+<article class="product-card">
+  <a class="product-card__link" [routerLink]="['/productos', product.id]" [attr.aria-label]="'Ver detalle de ' + product.name">
+    <span class="product-card__media">
+      <img [src]="product.image" [alt]="product.name" loading="lazy">
+    </span>
+
+    <span class="product-card__body">
+      <span>
+        <span class="eyebrow">{{ product.category }}</span>
+        <span class="product-card__badges">
+          @if (cartService.hasDiscount(product)) {
+          <span class="product-badge product-badge--deal">-{{ product.discountPercentage }}%</span>
+        }
+        @if (cartService.hasTax(product)) {
+          <span class="product-badge">{{ product.taxLabel ?? 'Impuesto' }} inc. {{ product.taxPercentage }}%</span>
+        }
+        </span>
+        <h3>{{ product.name }}</h3>
+      </span>
+
+      <p>{{ product.description }}</p>
+
+      <span class="product-card__meta">
+        <strong class="price-stack">
+          @if (cartService.hasDiscount(product)) {
+            <span class="price-old">{{ product.price | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+          }
+          <span>{{ cartService.getUnitFinalPrice(product) | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+        </strong>
+      </span>
+    </span>
+  </a>
+
+  <div class="product-card__actions">
+    <button class="button" type="button" [disabled]="isAddDisabled" (click)="addToCart.emit(product)">
+      {{ isAddDisabled ? 'No disponible' : 'Agregar' }}
+    </button>
+  </div>
+</article>

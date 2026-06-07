@@ -1,0 +1,85 @@
+<section class="page-heading">
+  <span class="eyebrow">Compra</span>
+  <h1>Carrito</h1>
+  <p>Revisa productos, cantidades y subtotal antes de continuar.</p>
+</section>
+
+@if (items$ | async; as items) {
+  @if (items.length > 0) {
+    <section class="cart-layout">
+      <div class="cart-list">
+        @for (item of items; track item.product.id) {
+          <article class="cart-item">
+            <a class="cart-item__media" [routerLink]="['/productos', item.product.id]" [attr.aria-label]="'Ver detalle de ' + item.product.name">
+              <img [src]="item.product.image" [alt]="item.product.name">
+            </a>
+            <div class="cart-item__details">
+              <span class="eyebrow">{{ item.product.category }}</span>
+              <h2>
+                <a [routerLink]="['/productos', item.product.id]">{{ item.product.name }}</a>
+              </h2>
+              @if (item.variant) {
+                <p class="variant-summary">
+                  @for (option of item.variant.options | keyvalue; track option.key) {
+                    <span>{{ option.key }}: {{ option.value }}</span>
+                  }
+                </p>
+              }
+              <p>
+                {{ cartService.getUnitFinalPrice(item.product) | currency:'ARS':'symbol-narrow':'1.0-0' }} c/u
+                @if (cartService.hasDiscount(item.product)) {
+                  <span class="summary-note">con {{ item.product.discountPercentage }}% off</span>
+                }
+              </p>
+            </div>
+            <label>
+              Cantidad
+              <input type="number" min="1" [max]="cartService.getAvailableStock(item.product, item.variant)" [value]="item.quantity" (change)="updateQuantity(item, $event)">
+              @if (item.quantity >= cartService.getAvailableStock(item.product, item.variant)) {
+                <span class="field-hint">Maximo disponible.</span>
+              }
+            </label>
+            <strong>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+            <button class="button button--ghost" type="button" (click)="removeProduct(item)">Eliminar</button>
+          </article>
+        }
+      </div>
+
+      <aside class="summary">
+        <h2>Resumen</h2>
+        <div>
+          <span>Productos</span>
+          <strong>{{ cartService.getItemsCount(items) }}</strong>
+        </div>
+        <div>
+          <span>Subtotal</span>
+          <strong>{{ cartService.getItemsBaseSubtotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+        </div>
+        @if (cartService.getDiscountTotal(items) > 0) {
+          <div class="summary__adjustment">
+            <span>Descuentos</span>
+            <strong>-{{ cartService.getDiscountTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+          </div>
+        }
+        @if (cartService.getTaxTotal(items) > 0) {
+          <div>
+            <span>Impuestos incluidos</span>
+            <strong>{{ cartService.getTaxTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+          </div>
+        }
+        <div>
+          <span>Total</span>
+          <strong>{{ cartService.getTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+        </div>
+        <a class="button" routerLink="/checkout">Continuar al checkout</a>
+        <button class="button button--ghost" type="button" (click)="clearCart()">Vaciar carrito</button>
+      </aside>
+    </section>
+  } @else {
+    <section class="empty-state">
+      <h2>Tu carrito esta vacio</h2>
+      <p>Agrega productos desde el catalogo para iniciar una compra simulada.</p>
+      <a class="button" routerLink="/productos">Ver productos</a>
+    </section>
+  }
+}

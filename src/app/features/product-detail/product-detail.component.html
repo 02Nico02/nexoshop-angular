@@ -1,0 +1,169 @@
+@if (product$ | async; as product) {
+  <app-breadcrumb [items]="getBreadcrumbItems(product)" />
+
+  <section class="detail-layout">
+    <div class="detail-layout__media">
+      <img [src]="getSelectedImage(product)" [alt]="product.name">
+      @if (getProductImages(product).length > 1) {
+        <div class="product-gallery" aria-label="Imagenes del producto">
+          @for (image of getProductImages(product); track image) {
+            <button
+              type="button"
+              [class.active]="getSelectedImage(product) === image"
+              (click)="selectImage(image)"
+              [attr.aria-label]="'Ver imagen de ' + product.name"
+            >
+              <img [src]="image" [alt]="product.name">
+            </button>
+          }
+        </div>
+      }
+      <span>Imagen ilustrativa del producto</span>
+    </div>
+
+    <div class="detail-layout__content">
+      <div class="detail-layout__intro">
+        <div class="product-card__badges">
+          @if (cartService.hasDiscount(product)) {
+            <span class="product-badge product-badge--deal">-{{ product.discountPercentage }}% descuento</span>
+          }
+          @if (cartService.hasTax(product)) {
+            <span class="product-badge">{{ product.taxLabel ?? 'Impuesto' }} incluido {{ product.taxPercentage }}%</span>
+          }
+        </div>
+        <h1>{{ product.name }}</h1>
+        <p>{{ product.description }}</p>
+      </div>
+
+      @if (cartItems$ | async; as cartItems) {
+        <section class="purchase-panel">
+          <div class="detail-layout__price">
+            <strong class="price-stack">
+              <span>{{ cartService.getUnitFinalPrice(product) | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+              @if (cartService.hasDiscount(product)) {
+                <span class="price-old">{{ product.price | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+              }
+            </strong>
+            <span
+              class="stock-status"
+              [class.out]="!cartService.canAddProduct(product, cartItems, getSelectedVariant(product))"
+              [class.pending]="hasVariants(product) && !getSelectedVariant(product)"
+            >
+              @if (hasVariants(product) && !getSelectedVariant(product)) {
+                Selecciona color y talle para continuar
+              } @else if (cartService.getAvailableStock(product, getSelectedVariant(product)) === 0) {
+                Sin stock disponible
+              } @else if (cartService.getProductQuantity(product.id, cartItems, getSelectedVariant(product)?.id) >= cartService.getAvailableStock(product, getSelectedVariant(product))) {
+                Ya agregaste todo el stock disponible
+              } @else {
+                {{ cartService.getAvailableStock(product, getSelectedVariant(product)) - cartService.getProductQuantity(product.id, cartItems, getSelectedVariant(product)?.id) }} disponibles
+              }
+            </span>
+          </div>
+
+          @if (hasVariants(product)) {
+            <section class="variant-selector" aria-label="Variantes de producto">
+              <h2>Elegí una variante</h2>
+              @for (optionName of getVariantOptionNames(product); track optionName) {
+                <div class="variant-selector__group">
+                  <span>{{ optionName }}</span>
+                  <div>
+                    @for (value of getVariantOptionValues(product, optionName); track value) {
+                      <button
+                        type="button"
+                        [class.active]="selectedOptions[optionName] === value"
+                        (click)="selectVariantOption(optionName, value)"
+                      >
+                        {{ value }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </section>
+          }
+
+          @if (getMaxQuantity(product) > 0 && (!hasVariants(product) || getSelectedVariant(product))) {
+            <div class="quantity-selector">
+              <span>Cantidad</span>
+              <div>
+                <button type="button" [disabled]="selectedQuantity <= 1" (click)="decreaseQuantity()">-</button>
+                <strong>{{ selectedQuantity }}</strong>
+                <button type="button" [disabled]="selectedQuantity >= getMaxQuantity(product)" (click)="increaseQuantity(product)">+</button>
+              </div>
+            </div>
+          }
+
+          @if (cartService.getAvailableStock(product, getSelectedVariant(product)) === 0) {
+            <p class="notice">Este producto no tiene stock por el momento.</p>
+          } @else if (hasVariants(product) && !getSelectedVariant(product)) {
+            <p class="notice">Selecciona una variante para consultar disponibilidad y agregar al carrito.</p>
+          } @else if (!cartService.canAddProduct(product, cartItems, getSelectedVariant(product))) {
+            <p class="notice">Ya tenes en el carrito todas las unidades disponibles.</p>
+          }
+
+          <button class="button button--buy" type="button" [disabled]="!cartService.canAddProduct(product, cartItems, getSelectedVariant(product))" (click)="addToCart(product)">
+            @if (cartService.canAddProduct(product, cartItems, getSelectedVariant(product))) {
+              Agregar al carrito
+            } @else if (hasVariants(product) && !getSelectedVariant(product)) {
+              Selecciona una variante
+            } @else {
+              Sin stock disponible
+            }
+          </button>
+
+          <section class="commerce-benefits">
+            <h2>Beneficios de compra</h2>
+            <div>
+              <span>Envio disponible</span>
+              <span>Compra segura</span>
+              <span>Cambios y devoluciones</span>
+              <span>Atencion personalizada</span>
+            </div>
+          </section>
+        </section>
+
+        <section class="feature-panel">
+          <h2>Características principales</h2>
+          <ul>
+            @for (feature of product.features; track feature) {
+              <li>{{ feature }}</li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+  </section>
+
+  @if (relatedProducts$ | async; as relatedProducts) {
+    @if (relatedProducts.length > 0) {
+      <section class="section related-products">
+        <div class="section__header">
+          <div>
+            <span class="eyebrow">También te puede interesar</span>
+            <h2>Productos relacionados</h2>
+            <p>Productos similares de la misma categoria.</p>
+          </div>
+        </div>
+
+        @if (cartItems$ | async; as cartItems) {
+          <div class="product-grid">
+            @for (relatedProduct of relatedProducts; track relatedProduct.id) {
+              <app-product-card
+                [product]="relatedProduct"
+                [currentQuantity]="cartService.getProductQuantity(relatedProduct.id, cartItems)"
+                (addToCart)="addToCart(relatedProduct)"
+              />
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+} @else {
+  <section class="empty-state">
+    <h1>Producto no encontrado</h1>
+    <p>El producto que intentas ver no existe o ya no esta disponible.</p>
+    <a class="button" routerLink="/productos">Volver al catalogo</a>
+  </section>
+}

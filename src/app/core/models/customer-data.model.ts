@@ -1,0 +1,6 @@
+export interface CustomerData {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+}
