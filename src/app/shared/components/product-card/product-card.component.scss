@@ -45,7 +45,7 @@
 
 .product-card__body {
   display: grid;
-  grid-template-rows: auto minmax(3rem, auto) auto;
+  grid-template-rows: auto auto auto;
   gap: 1rem;
   padding: 1.05rem;
   min-width: 0;
@@ -58,10 +58,12 @@ h3 {
 }
 
 p {
-  display: -webkit-box;
-  overflow: hidden;
   margin: 0;
   color: var(--color-muted);
+  display: -webkit-box;
+  min-height: 3rem;
+  max-height: 3rem;
+  overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-height: 1.5;

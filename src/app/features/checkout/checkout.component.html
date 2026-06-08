@@ -1,101 +1,317 @@
-<section class="page-heading">
+<section class="page-heading checkout-heading">
   <span class="eyebrow">Checkout simulado</span>
   <h1>Finalizar compra</h1>
-  <p>Completa tus datos para generar una confirmacion local del pedido.</p>
+  <p>Revisa tus datos, elige envio y pago, y confirma el pedido con una simulacion local completa.</p>
 </section>
 
 @if (submittedOrder) {
-  <section class="empty-state empty-state--success">
-    <h2>Compra finalizada</h2>
-    <p>Pedido {{ submittedOrder.id }} confirmado por {{ submittedOrder.customer.fullName }}.</p>
-    <p>
-      Subtotal {{ submittedOrder.subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}
-      · Descuentos -{{ submittedOrder.discountTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}
-      · Impuestos incluidos {{ submittedOrder.taxTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}
-    </p>
-    <strong>Total: {{ submittedOrder.total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
-    <a class="button" routerLink="/productos">Seguir comprando</a>
+  <section class="checkout-success">
+    <div class="checkout-success__header">
+      <span class="eyebrow">Compra confirmada</span>
+      <h2>!Compra confirmada!</h2>
+      <p>Pedido {{ submittedOrder.id }} registrado para {{ submittedOrder.customer.fullName }}.</p>
+    </div>
+
+    <div class="checkout-success__grid">
+      <article class="checkout-success__card">
+        <span>Entrega</span>
+        <strong>{{ submittedOrder.shippingMethod.label }}</strong>
+        <small>{{ submittedOrder.shippingMethod.eta }}</small>
+      </article>
+
+      <article class="checkout-success__card">
+        <span>Pago</span>
+        <strong>{{ submittedOrder.paymentMethod.label }}</strong>
+        <small>@if (submittedOrder.paymentDetails) { **** {{ submittedOrder.paymentDetails.number.slice(-4) }} } @else { Simulado }</small>
+      </article>
+
+      <article class="checkout-success__card">
+        <span>Total abonado</span>
+        <strong>{{ submittedOrder.total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+        <small>{{ submittedOrder.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+      </article>
+    </div>
+
+    <div class="checkout-success__body">
+      <section class="checkout-card">
+        <h3>Detalle de compra</h3>
+        <div class="checkout-summary-list">
+          @for (item of submittedOrder.items; track trackByItemId($index, item)) {
+            <article class="checkout-summary-item">
+              <div>
+                <strong>{{ item.quantity }} x {{ item.product.name }}</strong>
+                @if (item.variant) {
+                  <small>
+                    @for (option of item.variant.options | keyvalue; track option.key) {
+                      {{ option.key }}: {{ option.value }}
+                    }
+                  </small>
+                }
+              </div>
+              <span>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="checkout-card">
+        <h3>Resumen final</h3>
+        <div class="checkout-totals">
+          <div><span>Subtotal</span><strong>{{ submittedOrder.subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+          @if (submittedOrder.discountTotal > 0) {
+            <div><span>Descuentos</span><strong>-{{ submittedOrder.discountTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+          }
+          @if (submittedOrder.taxTotal > 0) {
+            <div><span>Impuestos incluidos</span><strong>{{ submittedOrder.taxTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+          }
+          <div><span>Envio</span><strong>{{ submittedOrder.shippingCost | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+          <div class="checkout-totals__total"><span>Total</span><strong>{{ submittedOrder.total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+        </div>
+        <p class="checkout-success__address">{{ formatAddress() }}</p>
+      </section>
+    </div>
+
+    <div class="checkout-success__actions">
+      <a class="button" routerLink="/">Volver al inicio</a>
+      <a class="button button--ghost" routerLink="/productos">Seguir comprando</a>
+    </div>
   </section>
 } @else {
   @if (items$ | async; as items) {
     @if (items.length > 0) {
       <section class="checkout-layout">
         <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="submit()" novalidate>
-          <label>
-            Nombre completo
-            <input type="text" formControlName="fullName" placeholder="Nombre y apellido">
-            @if (isInvalid('fullName')) {
-              <span>Ingresá al menos 3 caracteres.</span>
+          <div class="checkout-form__steps" aria-hidden="true">
+            <span>1. Contacto</span>
+            <span>2. Entrega</span>
+            <span>3. Envio</span>
+            <span>4. Pago</span>
+          </div>
+
+          <section class="checkout-card" formGroupName="contact">
+            <div class="checkout-card__header">
+              <span class="checkout-card__step">1</span>
+              <div>
+                <span class="eyebrow">Datos de contacto</span>
+                <h2>Quien recibe la compra</h2>
+              </div>
+            </div>
+
+            <div class="checkout-grid">
+              <label class="form-field">
+                Nombre completo
+                <input type="text" formControlName="fullName" placeholder="Nombre y apellido">
+                <span class="field-message">@if (isInvalid('contact.fullName')) { Ingresá al menos 3 caracteres. } @else { &nbsp; }</span>
+              </label>
+
+              <label class="form-field">
+                Email
+                <input type="email" formControlName="email" placeholder="nombre@email.com">
+                <span class="field-message">@if (isInvalid('contact.email')) { Ingresá un email válido. } @else { &nbsp; }</span>
+              </label>
+
+              <label class="form-field">
+                Teléfono
+                <input type="tel" formControlName="phone" placeholder="1122334455">
+                <span class="field-message">@if (isInvalid('contact.phone')) { Ingresá un teléfono válido. } @else { &nbsp; }</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="checkout-card" formGroupName="shippingAddress">
+            <div class="checkout-card__header">
+              <span class="checkout-card__step">2</span>
+              <div>
+                <span class="eyebrow">Dirección de entrega</span>
+                <h2>Datos para el envio</h2>
+              </div>
+            </div>
+
+            <div class="checkout-grid checkout-grid--address">
+              <label class="checkout-grid__full form-field">
+                Calle y numero
+                <input type="text" formControlName="street" placeholder="Av. Corrientes 1234">
+                <span class="field-message">@if (isInvalid('shippingAddress.street')) { Ingresá una dirección completa. } @else { &nbsp; }</span>
+              </label>
+
+              <label class="form-field">
+                Ciudad
+                <input type="text" formControlName="city" placeholder="Buenos Aires">
+                <span class="field-message">@if (isInvalid('shippingAddress.city')) { Ingresá la ciudad. } @else { &nbsp; }</span>
+              </label>
+
+              <label class="form-field">
+                Provincia
+                <input type="text" formControlName="province" placeholder="CABA">
+                <span class="field-message">@if (isInvalid('shippingAddress.province')) { Ingresá la provincia. } @else { &nbsp; }</span>
+              </label>
+
+              <label class="form-field">
+                Codigo postal
+                <input type="text" formControlName="postalCode" placeholder="C1043">
+                <span class="field-message">@if (isInvalid('shippingAddress.postalCode')) { Ingresá el código postal. } @else { &nbsp; }</span>
+              </label>
+
+              <label class="checkout-grid__full form-field">
+                Referencia opcional
+                <input type="text" formControlName="reference" placeholder="Departamento, piso o referencia de entrega">
+                <span class="field-message">&nbsp;</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="checkout-card">
+            <div class="checkout-card__header">
+              <span class="checkout-card__step">3</span>
+              <div>
+                <span class="eyebrow">Metodo de envio</span>
+                <h2>Elegi cómo querés recibirlo</h2>
+              </div>
+            </div>
+
+            <div class="choice-grid">
+              @for (method of shippingMethods; track method.code) {
+                <label class="choice-card">
+                  <input type="radio" formControlName="shippingMethod" [value]="method.code">
+                  <span class="choice-card__content">
+                    <strong>{{ method.label }}</strong>
+                    <small>{{ method.eta }}</small>
+                  </span>
+                  <span class="choice-card__price">
+                    @if (method.cost === 0) {
+                      Gratis
+                    } @else {
+                      {{ method.cost | currency:'ARS':'symbol-narrow':'1.0-0' }}
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            <p class="field-hint">{{ selectedShippingMethod.label }} · {{ selectedShippingMethod.eta }}</p>
+          </section>
+
+          <section class="checkout-card">
+            <div class="checkout-card__header">
+              <span class="checkout-card__step">4</span>
+              <div>
+                <span class="eyebrow">Metodo de pago</span>
+                <h2>Cómo vas a pagar</h2>
+              </div>
+            </div>
+
+            <div class="payment-methods">
+              @for (method of paymentMethods; track method.code) {
+                <article class="payment-method-card" [class.payment-method-card--selected]="isPaymentMethodSelected(method.code)">
+                  <div class="payment-method-card__selector">
+                    <label [for]="'payment-method-' + method.code">
+                      <input
+                        [id]="'payment-method-' + method.code"
+                        type="radio"
+                        formControlName="paymentMethod"
+                        [checked]="isPaymentMethodSelected(method.code)"
+                        [value]="method.code">
+                      <span class="payment-method-card__header-text">
+                        <strong>{{ method.label }}</strong>
+                        <small>{{ paymentMethodDescription(method.code) }}</small>
+                      </span>
+                    </label>
+                  </div>
+
+                  @if (isPaymentMethodSelected(method.code)) {
+                    @if (paymentRequiresCard) {
+                      <div class="payment-method-card__details" formGroupName="paymentDetails">
+                        <div class="payment-method-card__info">
+                          <span>🔒 Pago seguro simulado. No ingreses datos reales.</span>
+                          <span>{{ paymentCardBrands }}</span>
+                        </div>
+
+                        <div class="checkout-grid checkout-grid--payment payment-method-card__form-grid">
+                          <label class="checkout-grid__full form-field">
+                            Nombre del titular
+                            <input type="text" formControlName="holder" placeholder="Como figura en la tarjeta">
+                            <span class="field-message">@if (isInvalid('paymentDetails.holder')) { Ingresá el nombre del titular. } @else { &nbsp; }</span>
+                          </label>
+
+                          <label class="checkout-grid__full form-field">
+                            Numero de tarjeta
+                            <input type="text" formControlName="number" placeholder="1234 5678 9012 3456">
+                            <span class="field-message">@if (isInvalid('paymentDetails.number')) { Ingresá un número de tarjeta válido. } @else { &nbsp; }</span>
+                          </label>
+
+                          <label class="form-field">
+                            Vencimiento
+                            <input type="text" formControlName="expiry" placeholder="MM/AA">
+                            <span class="field-message">@if (isInvalid('paymentDetails.expiry')) { Ingresá el vencimiento. } @else { &nbsp; }</span>
+                          </label>
+
+                          <label class="form-field">
+                            Codigo de seguridad
+                            <input type="text" formControlName="cvv" placeholder="123">
+                            <span class="field-message">@if (isInvalid('paymentDetails.cvv')) { Ingresá el código de seguridad. } @else { &nbsp; }</span>
+                          </label>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="payment-method-card__details payment-method-card__details--info">
+                        <p>{{ paymentMethodInfo(method.code) }}</p>
+                      </div>
+                    }
+                  }
+                </article>
+              }
+            </div>
+
+            @if (hasPaymentError()) {
+              <p class="form-status">Revisá los datos de pago antes de confirmar.</p>
             }
-          </label>
+          </section>
 
-          <label>
-            Email
-            <input type="email" formControlName="email" placeholder="nombre@email.com">
-            @if (isInvalid('email')) {
-              <span>Ingresá un email valido.</span>
-            }
-          </label>
-
-          <label>
-            Telefono
-            <input type="tel" formControlName="phone" placeholder="1122334455">
-            @if (isInvalid('phone')) {
-              <span>Ingresá un telefono valido.</span>
-            }
-          </label>
-
-          <label>
-            Direccion
-            <input type="text" formControlName="address" placeholder="Calle 123, Ciudad">
-            @if (isInvalid('address')) {
-              <span>Ingresá una direccion completa.</span>
-            }
-          </label>
-
-          @if (checkoutForm.invalid) {
-            <p class="form-status">Completa todos los datos para habilitar la compra.</p>
-          }
-
-          <button class="button" type="submit" [disabled]="checkoutForm.invalid || items.length === 0">Finalizar compra</button>
+          <button class="button button--buy" type="submit" [disabled]="checkoutForm.invalid || items.length === 0">
+            Confirmar compra
+          </button>
         </form>
 
-        <aside class="summary">
-          <h2>Pedido</h2>
-          @for (item of items; track item.product.id) {
-            <div>
-              <span>
-                {{ item.quantity }} x {{ item.product.name }}
-                @if (cartService.hasDiscount(item.product)) {
-                  <small class="summary-note">-{{ item.product.discountPercentage }}%</small>
-                }
-                @if (cartService.hasTax(item.product)) {
-                  <small class="summary-note">{{ item.product.taxLabel ?? 'Impuesto' }} inc. {{ item.product.taxPercentage }}%</small>
-                }
-              </span>
-              <strong>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+        <aside class="checkout-summary">
+          <section class="checkout-card checkout-summary__card">
+            <div class="checkout-card__header checkout-card__header--compact">
+              <div>
+                <span class="eyebrow">Resumen del pedido</span>
+                <h2>Todo listo para confirmar</h2>
+              </div>
+              <span class="checkout-summary__badge">{{ items.length }} items</span>
             </div>
-          }
-          <div>
-            <span>Subtotal</span>
-            <strong>{{ cartService.getItemsBaseSubtotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
-          </div>
-          @if (cartService.getDiscountTotal(items) > 0) {
-            <div class="summary__adjustment">
-              <span>Descuentos</span>
-              <strong>-{{ cartService.getDiscountTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+
+            <div class="checkout-summary-list">
+              @for (item of items; track trackByItemId($index, item)) {
+                <article class="checkout-summary-item">
+                  <div>
+                    <strong>{{ item.quantity }} x {{ item.product.name }}</strong>
+                    @if (item.variant) {
+                      <small>
+                        @for (option of item.variant.options | keyvalue; track option.key) {
+                          {{ option.key }}: {{ option.value }}
+                        }
+                      </small>
+                    }
+                  </div>
+                  <span>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+                </article>
+              }
             </div>
-          }
-          @if (cartService.getTaxTotal(items) > 0) {
-            <div>
-              <span>Impuestos incluidos</span>
-              <strong>{{ cartService.getTaxTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+
+            <div class="checkout-totals">
+              <div><span>Subtotal</span><strong>{{ subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+              @if (discountTotal > 0) {
+                <div><span>Descuentos</span><strong>-{{ discountTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+              }
+              @if (taxTotal > 0) {
+                <div><span>Impuestos incluidos</span><strong>{{ taxTotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+              }
+              <div><span>Envio</span><strong>{{ shippingCost | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
+              <div class="checkout-totals__total"><span>Total</span><strong>{{ total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong></div>
             </div>
-          }
-          <div class="summary__total">
-            <span>Total</span>
-            <strong>{{ cartService.getTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
-          </div>
+          </section>
         </aside>
       </section>
     } @else {

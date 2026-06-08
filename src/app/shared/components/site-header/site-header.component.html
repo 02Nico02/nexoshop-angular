@@ -1,22 +1,96 @@
 <header class="site-header">
-  <div class="site-header__brand-row">
+  <div class="site-header__desktop">
     <a class="brand" routerLink="/" aria-label="Ir al inicio de NexoShop Angular">
       <img src="/logo-header-nexoShop.png" alt="NexoShop" width="178" height="44">
     </a>
 
-    <button class="site-header__menu-toggle" type="button" aria-label="Abrir menú de navegación"
-      [attr.aria-expanded]="isMobileMenuOpen" aria-controls="site-nav" (click)="toggleMobileMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
+    <div class="site-header__desktop-nav">
+      <div class="site-nav__menu">
+        <button type="button" class="site-nav__menu-toggle" [class.open]="isCategoryMenuOpen" (click)="toggleCategoryMenu()">
+          <span>Categorías</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M7 10l5 5 5-5H7Z"/>
+          </svg>
+        </button>
+
+        <div class="site-nav__categories" [class.open]="isCategoryMenuOpen">
+          @for (category of categories; track category) {
+            <button type="button" (click)="selectCategory(category)">{{ category }}</button>
+          }
+        </div>
+      </div>
+
+      <form class="header-search header-search--desktop" role="search" (ngSubmit)="submitSearch()">
+        <span class="sr-only">Buscar productos</span>
+        <div class="header-search__control">
+          <input type="search" name="headerSearchDesktop" autocomplete="off" [(ngModel)]="search"
+            (ngModelChange)="updateDraftSearch($event)" (focus)="updateDraftSearch(search)" (blur)="hideSuggestions()"
+            placeholder="Buscar productos">
+          <button type="submit" aria-label="Buscar">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path
+                d="M10.8 18.1a7.3 7.3 0 1 1 5.2-2.1l4 4-1.4 1.4-4-4a7.3 7.3 0 0 1-3.8 1.1Zm0-2a5.3 5.3 0 1 0 0-10.6 5.3 5.3 0 0 0 0 10.6Z" />
+            </svg>
+          </button>
+        </div>
+
+        @if (showSuggestions) {
+          <div class="search-suggestions" role="listbox" aria-label="Sugerencias de busqueda">
+            @for (suggestion of suggestions; track suggestion.type + suggestion.label) {
+              <button type="button" role="option" (mousedown)="selectSuggestion(suggestion)">
+                <span>
+                  <strong>{{ suggestion.label }}</strong>
+                  @if (suggestion.hint) {
+                    <small>{{ suggestion.hint }}</small>
+                  }
+                </span>
+                <em>{{ suggestion.type }}</em>
+              </button>
+            }
+          </div>
+        }
+      </form>
+    </div>
+
+    <button type="button" class="site-nav__cart site-nav__cart--header" aria-label="Abrir carrito" (click)="openCartSidebar()">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M7 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm10 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM6.2 6h14l-1.5 7.2a2 2 0 0 1-2 1.6H8.3a2 2 0 0 1-2-1.6L5 3.8H2V2h3.7L6.2 6Zm.4 2 1.1 5.2c.1.3.3.5.6.5h8.4c.3 0 .5-.2.6-.5L18.3 8H6.6Z"/>
+      </svg>
+      <span class="nav-pill">{{ cartCount$ | async }}</span>
     </button>
   </div>
 
-  <nav class="site-nav" id="site-nav" [class.open]="isMobileMenuOpen" aria-label="Navegacion principal">
-    <form class="header-search" role="search" (ngSubmit)="submitSearch()">
+  <div class="site-header__mobile">
+    <button class="site-header__menu-toggle" type="button" [attr.aria-label]="isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'"
+      [attr.aria-expanded]="isMobileMenuOpen" aria-controls="site-nav-mobile" (click)="toggleMobileMenu()">
+      @if (isMobileMenuOpen) {
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M6.4 5.4 18.6 17.6l-1.4 1.4L5 6.8 6.4 5.4Zm12.2 1.4L6.4 19.6 5 18.2 17.2 6l1.4 1.4Z"/>
+        </svg>
+      } @else {
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/>
+        </svg>
+      }
+    </button>
+
+    <a class="brand" routerLink="/" aria-label="Ir al inicio de NexoShop Angular">
+      <img src="/logo-header-nexoShop.png" alt="NexoShop" width="178" height="44">
+    </a>
+
+    <button type="button" class="site-nav__cart site-nav__cart--header" aria-label="Abrir carrito" (click)="openCartSidebar()">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M7 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm10 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM6.2 6h14l-1.5 7.2a2 2 0 0 1-2 1.6H8.3a2 2 0 0 1-2-1.6L5 3.8H2V2h3.7L6.2 6Zm.4 2 1.1 5.2c.1.3.3.5.6.5h8.4c.3 0 .5-.2.6-.5L18.3 8H6.6Z"/>
+      </svg>
+      <span class="nav-pill">{{ cartCount$ | async }}</span>
+    </button>
+  </div>
+
+  <div class="site-header__mobile-panel" id="site-nav-mobile" [class.open]="isMobileMenuOpen">
+    <form class="header-search header-search--mobile" role="search" (ngSubmit)="submitSearch()">
       <span class="sr-only">Buscar productos</span>
       <div class="header-search__control">
-        <input type="search" name="headerSearch" autocomplete="off" [(ngModel)]="search"
+        <input type="search" name="headerSearchMobile" autocomplete="off" [(ngModel)]="search"
           (ngModelChange)="updateDraftSearch($event)" (focus)="updateDraftSearch(search)" (blur)="hideSuggestions()"
           placeholder="Buscar productos">
         <button type="submit" aria-label="Buscar">
@@ -28,28 +102,29 @@
       </div>
 
       @if (showSuggestions) {
-      <div class="search-suggestions" role="listbox" aria-label="Sugerencias de busqueda">
-        @for (suggestion of suggestions; track suggestion.type + suggestion.label) {
-        <button type="button" role="option" (mousedown)="selectSuggestion(suggestion)">
-          <span>
-            <strong>{{ suggestion.label }}</strong>
-            @if (suggestion.hint) {
-            <small>{{ suggestion.hint }}</small>
-            }
-          </span>
-          <em>{{ suggestion.type }}</em>
-        </button>
-        }
-      </div>
+        <div class="search-suggestions" role="listbox" aria-label="Sugerencias de busqueda">
+          @for (suggestion of suggestions; track suggestion.type + suggestion.label) {
+            <button type="button" role="option" (mousedown)="selectSuggestion(suggestion)">
+              <span>
+                <strong>{{ suggestion.label }}</strong>
+                @if (suggestion.hint) {
+                  <small>{{ suggestion.hint }}</small>
+                }
+              </span>
+              <em>{{ suggestion.type }}</em>
+            </button>
+          }
+        </div>
       }
     </form>
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-      (click)="closeMobileMenu()">Inicio</a>
-    <a routerLink="/productos" routerLinkActive="active" (click)="closeMobileMenu()">Productos</a>
-    <a routerLink="/carrito" routerLinkActive="active" (click)="closeMobileMenu()">
-      Carrito
-      <span class="nav-pill">{{ cartCount$ | async }}</span>
-    </a>
-    <a routerLink="/checkout" routerLinkActive="active" (click)="closeMobileMenu()">Checkout</a>
-  </nav>
+
+    <div class="site-header__mobile-categories">
+      <div class="site-header__mobile-heading">Categorías</div>
+      <div class="site-header__mobile-list">
+        @for (category of categories; track category) {
+          <button type="button" (click)="selectCategory(category)">{{ category }}</button>
+        }
+      </div>
+    </div>
+  </div>
 </header>

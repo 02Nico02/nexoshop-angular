@@ -31,6 +31,7 @@ export class ProductsComponent {
   readonly cartItems$ = this.cartService.items$;
   viewMode: 'grid' | 'list' = 'grid';
   products$: Observable<Product[]> = this.productService.filterProducts(this.filters);
+  isFilterPanelOpen = false;
 
   constructor() {
     const category = this.route.snapshot.queryParamMap.get('category') as ProductCategory | null;
@@ -115,6 +116,7 @@ export class ProductsComponent {
     this.productFilterState.clearSearch();
     Object.assign(this.filters, this.getInitialFilters());
     this.applyFilters();
+    this.closeFilterPanel();
   }
 
   clearSearchFilter(): void {
@@ -128,6 +130,7 @@ export class ProductsComponent {
     this.filters.subcategory = null;
     this.filters.attributes = {};
     this.applyFilters();
+    this.closeFilterPanel();
   }
 
   selectCategory(category: ProductCategory): void {
@@ -135,12 +138,14 @@ export class ProductsComponent {
     this.filters.subcategory = null;
     this.filters.attributes = {};
     this.applyFilters();
+    this.closeFilterPanel();
   }
 
   selectSubcategory(subcategory: string): void {
     this.filters.subcategory = subcategory;
     this.filters.attributes = {};
     this.applyFilters();
+    this.closeFilterPanel();
   }
 
   clearSubcategoryFilter(): void {
@@ -184,6 +189,25 @@ export class ProductsComponent {
     }
 
     this.applyFilters();
+  }
+
+  openFilterPanel(): void {
+    this.isFilterPanelOpen = true;
+    this.updateFilterPanelScrollLock(true);
+  }
+
+  closeFilterPanel(): void {
+    this.isFilterPanelOpen = false;
+    this.updateFilterPanelScrollLock(false);
+  }
+
+  toggleFilterPanel(): void {
+    if (this.isFilterPanelOpen) {
+      this.closeFilterPanel();
+      return;
+    }
+
+    this.openFilterPanel();
   }
 
   clearAttributeFilter(attributeName: string, value: string): void {
@@ -246,5 +270,9 @@ export class ProductsComponent {
 
   private toNullableNumber(value: number | null): number | null {
     return value === null || Number.isNaN(Number(value)) ? null : Number(value);
+  }
+
+  private updateFilterPanelScrollLock(locked: boolean): void {
+    document.body.classList.toggle('catalog-filters-open', locked);
   }
 }

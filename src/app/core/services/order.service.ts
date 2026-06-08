@@ -1,22 +1,24 @@
 import { Injectable } from '@angular/core';
 
-import { CartItem } from '../models/cart-item.model';
-import { CustomerData } from '../models/customer-data.model';
-import { Order } from '../models/order.model';
+import { Order, OrderCreateInput } from '../models/order.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  createOrder(customer: CustomerData, items: CartItem[], subtotal: number, discountTotal: number, taxTotal: number, total: number): Order {
+  createOrder(input: OrderCreateInput): Order {
     return {
       id: `NS-${Date.now()}`,
-      customer,
-      items,
-      subtotal,
-      discountTotal,
-      taxTotal,
-      total,
+      customer: input.customer,
+      items: input.items,
+      subtotal: input.subtotal,
+      discountTotal: input.discountTotal,
+      taxTotal: input.taxTotal,
+      shippingMethod: input.shippingMethod,
+      paymentMethod: input.paymentMethod,
+      paymentDetails: input.paymentDetails,
+      shippingCost: input.shippingMethod.cost,
+      total: input.total,
       createdAt: new Date().toISOString()
     };
   }

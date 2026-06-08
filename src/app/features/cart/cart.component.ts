@@ -8,6 +8,7 @@ import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-cart',
+  standalone: true,
   imports: [AsyncPipe, CurrencyPipe, KeyValuePipe, RouterLink],
   templateUrl: './cart.component.html'
 })
@@ -16,12 +17,28 @@ export class CartComponent {
   private readonly notificationService = inject(NotificationService);
   readonly items$ = this.cartService.items$;
 
+  getMaxQuantity(item: CartItem): number {
+    return this.cartService.getAvailableStock(item.product, item.variant);
+  }
+
   updateQuantity(item: CartItem, event: Event): void {
     const input = event.target as HTMLInputElement;
     const requestedQuantity = Number(input.value);
+    this.applyQuantity(item, requestedQuantity, input);
+  }
+
+  decreaseQuantity(item: CartItem): void {
+    this.applyQuantity(item, item.quantity - 1);
+  }
+
+  increaseQuantity(item: CartItem): void {
+    this.applyQuantity(item, item.quantity + 1);
+  }
+
+  private applyQuantity(item: CartItem, requestedQuantity: number, input?: HTMLInputElement): void {
     const result = this.cartService.updateQuantity(item.product.id, requestedQuantity, item.variant?.id);
 
-    if (!result.success) {
+    if (input && !result.success) {
       input.value = String(item.quantity);
     }
 

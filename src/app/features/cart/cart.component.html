@@ -8,11 +8,12 @@
   @if (items.length > 0) {
     <section class="cart-layout">
       <div class="cart-list">
-        @for (item of items; track item.product.id) {
+        @for (item of items; track item.product.id + '-' + (item.variant?.id ?? 'base')) {
           <article class="cart-item">
             <a class="cart-item__media" [routerLink]="['/productos', item.product.id]" [attr.aria-label]="'Ver detalle de ' + item.product.name">
               <img [src]="item.product.image" [alt]="item.product.name">
             </a>
+
             <div class="cart-item__details">
               <span class="eyebrow">{{ item.product.category }}</span>
               <h2>
@@ -25,28 +26,47 @@
                   }
                 </p>
               }
-              <p>
-                {{ cartService.getUnitFinalPrice(item.product) | currency:'ARS':'symbol-narrow':'1.0-0' }} c/u
+              <p class="cart-item__price">
+                <span>{{ cartService.getUnitFinalPrice(item.product) | currency:'ARS':'symbol-narrow':'1.0-0' }} c/u</span>
                 @if (cartService.hasDiscount(item.product)) {
-                  <span class="summary-note">con {{ item.product.discountPercentage }}% off</span>
+                  <small>{{ item.product.discountPercentage }}% OFF</small>
                 }
               </p>
             </div>
-            <label>
-              Cantidad
-              <input type="number" min="1" [max]="cartService.getAvailableStock(item.product, item.variant)" [value]="item.quantity" (change)="updateQuantity(item, $event)">
-              @if (item.quantity >= cartService.getAvailableStock(item.product, item.variant)) {
-                <span class="field-hint">Maximo disponible.</span>
-              }
-            </label>
-            <strong>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
-            <button class="button button--ghost" type="button" (click)="removeProduct(item)">Eliminar</button>
+
+            <div class="cart-item__meta">
+              <div class="cart-item__summary">
+                <span>Subtotal</span>
+                <strong>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+              </div>
+
+              <div class="cart-item__controls">
+                <span>Cantidad</span>
+                <div class="quantity-stepper">
+                  <button type="button" [disabled]="item.quantity <= 1" (click)="decreaseQuantity(item)">-</button>
+                  <input
+                    class="cart-item__quantity-input"
+                    type="number"
+                    min="1"
+                    [max]="getMaxQuantity(item)"
+                    [value]="item.quantity"
+                    (change)="updateQuantity(item, $event)"
+                  >
+                  <button type="button" [disabled]="item.quantity >= getMaxQuantity(item)" (click)="increaseQuantity(item)">+</button>
+                </div>
+                @if (item.quantity >= getMaxQuantity(item)) {
+                  <span class="field-hint field-hint--subtle">Stock disponible: {{ getMaxQuantity(item) }}</span>
+                }
+              </div>
+
+              <button class="cart-item__remove" type="button" (click)="removeProduct(item)">Quitar</button>
+            </div>
           </article>
         }
       </div>
 
       <aside class="summary">
-        <h2>Resumen</h2>
+        <h2>Resumen de compra</h2>
         <div>
           <span>Productos</span>
           <strong>{{ cartService.getItemsCount(items) }}</strong>
@@ -77,8 +97,13 @@
     </section>
   } @else {
     <section class="empty-state">
+      <div class="empty-state__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M7 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm10 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM6.2 6h14l-1.5 7.2a2 2 0 0 1-2 1.6H8.3a2 2 0 0 1-2-1.6L5 3.8H2V2h3.7L6.2 6Zm.4 2 1.1 5.2c.1.3.3.5.6.5h8.4c.3 0 .5-.2.6-.5L18.3 8H6.6Z"/>
+        </svg>
+      </div>
       <h2>Tu carrito esta vacio</h2>
-      <p>Agrega productos desde el catalogo para iniciar una compra simulada.</p>
+      <p>Agrega productos desde el catalogo para continuar con tu compra.</p>
       <a class="button" routerLink="/productos">Ver productos</a>
     </section>
   }

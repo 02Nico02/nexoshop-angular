@@ -1,0 +1,85 @@
+<div class="cart-drawer__overlay" [class.open]="(isOpen$ | async)" (click)="close()"></div>
+
+<aside class="cart-drawer" [class.open]="(isOpen$ | async)" aria-label="Carrito rapido">
+  @if (items$ | async; as items) {
+    <header class="cart-drawer__header">
+      <div class="cart-drawer__header-copy">
+        <span class="eyebrow">Tu carrito</span>
+        <h2>{{ cartService.getItemsCount(items) }} productos</h2>
+      </div>
+      <button type="button" class="cart-drawer__close" aria-label="Cerrar carrito" (click)="close()">×</button>
+    </header>
+
+    @if (items.length > 0) {
+      <div class="cart-drawer__list">
+        @for (item of items; track item.product.id + '-' + (item.variant?.id ?? 'base')) {
+          <article class="cart-drawer__item">
+            <a class="cart-drawer__media" [routerLink]="['/productos', item.product.id]" (click)="close()" [attr.aria-label]="'Ver detalle de ' + item.product.name">
+              <img [src]="item.product.image" [alt]="item.product.name">
+            </a>
+
+            <div class="cart-drawer__details">
+              <h3>{{ item.product.name }}</h3>
+              @if (item.variant) {
+                <p class="cart-drawer__variant">
+                  @for (option of item.variant.options | keyvalue; track option.key) {
+                    <span>{{ option.key }}: {{ option.value }}</span>
+                  }
+                </p>
+              }
+              <p class="cart-drawer__line">
+                <span>{{ item.quantity }} x {{ cartService.getUnitFinalPrice(item.product) | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+                @if (item.quantity > 1) {
+                  <strong>{{ cartService.getSubtotal(item) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+                }
+              </p>
+            </div>
+
+            <button type="button" class="cart-drawer__remove" (click)="removeProduct(item)">Quitar</button>
+          </article>
+        }
+      </div>
+
+      <footer class="cart-drawer__footer">
+        <div class="cart-drawer__summary">
+          <div>
+            <span>Subtotal</span>
+            <strong>{{ cartService.getItemsBaseSubtotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+          </div>
+          @if (cartService.getDiscountTotal(items) > 0) {
+            <div class="cart-drawer__summary-adjustment">
+              <span>Descuentos</span>
+              <strong>-{{ cartService.getDiscountTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+            </div>
+          }
+          @if (cartService.getTaxTotal(items) > 0) {
+            <div>
+              <span>Impuestos incluidos</span>
+              <strong>{{ cartService.getTaxTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+            </div>
+          }
+          <div class="cart-drawer__summary-total">
+            <span>Total</span>
+            <strong>{{ cartService.getTotal(items) | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+          </div>
+        </div>
+
+        <div class="cart-drawer__actions">
+          <a class="button" routerLink="/checkout" (click)="close()">Ir al checkout</a>
+          <a class="button button--ghost" routerLink="/carrito" (click)="close()">Ver carrito</a>
+        </div>
+      </footer>
+    } @else {
+      <div class="cart-drawer__empty">
+        <div class="cart-drawer__empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm10 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM6.2 6h14l-1.5 7.2a2 2 0 0 1-2 1.6H8.3a2 2 0 0 1-2-1.6L5 3.8H2V2h3.7L6.2 6Zm.4 2 1.1 5.2c.1.3.3.5.6.5h8.4c.3 0 .5-.2.6-.5L18.3 8H6.6Z"/>
+          </svg>
+        </div>
+        <h3>Tu carrito esta vacio</h3>
+        <p>Agrega productos desde el catalogo para continuar con tu compra.</p>
+        <a class="button" routerLink="/productos" (click)="close()">Ver productos</a>
+      </div>
+    }
+  }
+</aside>

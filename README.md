@@ -20,11 +20,11 @@ Próximamente.
 * Filtros laterales responsive por categoría, subcategoría, atributos, búsqueda y rango de precio, con contador de resultados y chips activos.
 * Vista de detalle individual de producto con breadcrumb, variantes, cantidad, beneficios comerciales y productos relacionados.
 * Control de stock para evitar compras de productos no disponibles.
-* Carrito de compras con modificación de cantidades.
+* Carrito de compras con modificación de cantidades, sidebar rápido desde el header y resumen de compra.
 * Cálculo de subtotales y total general.
 * Persistencia del carrito en LocalStorage.
-* Checkout simulado con validaciones mediante Reactive Forms.
-* Confirmación de pedido y limpieza del carrito al finalizar la compra.
+* Checkout simulado con datos de contacto, dirección de entrega, envío, pago y resumen dinámico mediante Reactive Forms.
+* Confirmación de pedido con detalle local y limpieza del carrito al finalizar la compra.
 * Diseño responsive para desktop, tablet y mobile.
 * Imágenes locales para productos.
 
@@ -59,13 +59,14 @@ Cada producto cuenta con una vista individual donde se muestra información ampl
 
 ### Carrito de compras
 
-El carrito permite agregar productos, modificar cantidades, eliminar ítems, calcular subtotales y obtener el total general.
+El carrito permite agregar productos, modificar cantidades con control visual, eliminar ítems, calcular subtotales y obtener el total general.
 La información se persiste en LocalStorage para conservar el carrito al recargar la página.
+Además, el header incluye un cart drawer para ver un resumen rápido sin salir de la pantalla actual.
 
 ### Checkout simulado
 
-El checkout incluye un formulario con validaciones usando Angular Reactive Forms.
-Al finalizar la compra, se genera una confirmación local y se vacía el carrito.
+El checkout incluye un formulario dividido en datos de contacto, dirección de entrega, método de envío y método de pago, todo con validaciones usando Angular Reactive Forms.
+El resumen del pedido actualiza el total según el envío elegido y al finalizar la compra se genera una confirmación local más completa antes de vaciar el carrito.
 
 ---
 
@@ -198,7 +199,7 @@ Próximamente se agregarán capturas de:
 * Catálogo con filtros
 * Detalle de producto
 * Carrito
-* Checkout
+* Checkout con envío y pago simulados
 
 ---
 
@@ -211,7 +212,7 @@ Próximamente se agregarán capturas de:
 * Panel administrativo.
 * Tests unitarios para servicios y componentes.
 * Tests E2E con Playwright.
-* Pasarela de pago simulada.
+* Checkout con selección simulada de envío y pago.
 * Deploy en Vercel, Netlify o GitHub Pages.
 * Mejoras de SEO y accesibilidad.
 

@@ -4,6 +4,8 @@
   <router-outlet />
 </main>
 
+<app-cart-sidebar />
+
 @if (notificationService.notification$ | async; as notification) {
   <aside class="app-toast" [class]="'app-toast app-toast--' + notification.type" role="status" aria-live="polite">
     <span>{{ notification.message }}</span>
